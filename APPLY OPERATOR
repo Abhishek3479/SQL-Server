@@ -1,5 +1,7 @@
 In SQL Server, the `OUTER APPLY` is a powerful operator that works similarly to a `LEFT JOIN`, but it allows you to invoke a table-valued function or correlated subquery for each row from the left-hand table and join it with the result of the right-hand table or subquery.
 
+https://chatgpt.com/share/66e8f5f0-cde0-8002-80ed-d4aff7dcd145
+
 ### Key Points:
 - **`APPLY` Operator**: `APPLY` is used to join a table with the result of a table-valued function or a correlated subquery.
 - **`CROSS APPLY` vs. `OUTER APPLY`**:
