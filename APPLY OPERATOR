@@ -1,56 +1,74 @@
-In SQL Server, the `OUTER APPLY` is a powerful operator that works similarly to a `LEFT JOIN`, but it allows you to invoke a table-valued function or correlated subquery for each row from the left-hand table and join it with the result of the right-hand table or subquery.
 
-https://chatgpt.com/share/66e8f5f0-cde0-8002-80ed-d4aff7dcd145
+Create table Customer (customer_id int, name varchar(20), visited_on date, amount int)
 
-### Key Points:
-- **`APPLY` Operator**: `APPLY` is used to join a table with the result of a table-valued function or a correlated subquery.
-- **`CROSS APPLY` vs. `OUTER APPLY`**:
-  - `CROSS APPLY`: Works like an inner join, only returns rows where the subquery or function on the right side returns results.
-  - **`OUTER APPLY`**: Works like a left join, returning all rows from the left-hand table and including rows from the right-hand side where applicable. If the right side does not return a result, `NULL` values are returned.
+insert into Customer (customer_id, name, visited_on, amount) values ('1', 'Jhon', '2019-01-01', '100')
+insert into Customer (customer_id, name, visited_on, amount) values ('2', 'Daniel', '2019-01-02', '110')
+insert into Customer (customer_id, name, visited_on, amount) values ('3', 'Jade', '2019-01-03', '120')
+insert into Customer (customer_id, name, visited_on, amount) values ('3', 'Jade', '2019-01-04', '150')
 
-### Syntax:
-```sql
-SELECT columns
-FROM table1
-OUTER APPLY (subquery or table-valued function) AS alias;
-```
+Create table Movies (movie_id int, title varchar(20))
 
-### Use Cases:
-- `OUTER APPLY` is commonly used when the right side of the join depends on the row being processed from the left side. It's useful when the logic of joining requires row-by-row evaluation.
+insert into Movies (movie_id, title) values ('1', 'Avengers')
+insert into Movies (movie_id, title) values ('2', 'Frozen 2')
 
-### Example with a Correlated Subquery:
+/*
 
-Suppose we have two tables: `employees` and `sales`, and we want to get each employee and their latest sale (if available).
+select * from customer c1 cross apply(select * from movies c2 where c1.customer_id=c2.movie_id) as derived_table
 
-```sql
-SELECT e.emp_id, e.emp_name, s.sale_amount, s.sale_date
-FROM employees e
-OUTER APPLY
-(
-    SELECT TOP 1 sale_amount, sale_date
-    FROM sales s
-    WHERE s.emp_id = e.emp_id
-    ORDER BY s.sale_date DESC
-) AS s;
-```
+customer_id name                 visited_on       amount      movie_id    title               
+----------- -------------------- ---------------- ----------- ----------- --------------------
+          1 Jhon                       2019-01-01         100           1 Avengers            
+          2 Daniel                     2019-01-02         110           2 Frozen 2   
 
-#### Explanation:
-- `OUTER APPLY` is used to invoke the subquery for each row in `employees`.
-- For each employee (`e`), the subquery returns the most recent sale (`TOP 1 ... ORDER BY sale_date DESC`).
-- If no sales are available for an employee, `NULL` values are returned for the sales columns due to `OUTER APPLY`.
+3rd record of customer table got excluded as it not satisfies the condition
+*/
 
-### Use Case with a Table-Valued Function:
 
-If you have a table-valued function that returns a set of data for each row in the outer table:
+/*
+select * from customer c1 outer apply(select * from movies c2 where c1.customer_id=c2.movie_id) as derived_table
 
-```sql
-SELECT e.emp_id, e.emp_name, f.result_column
-FROM employees e
-OUTER APPLY dbo.some_function(e.emp_id) AS f;
-```
 
-In this case, `OUTER APPLY` invokes the `some_function` for each employee. If the function returns no results for a particular employee, `NULL` will be returned for that employee’s `result_column`. 
+Output:
 
-### Benefits:
-- **Row-by-Row Processing**: `OUTER APPLY` can evaluate subqueries or functions for each row, making it useful for dynamic row-based operations.
-- **More Flexibility**: It allows more complex scenarios than a simple `LEFT JOIN`, where the join logic may not fit a static one-to-one or one-to-many relationship.
+customer_id name                 visited_on       amount      movie_id    title               
+----------- -------------------- ---------------- ----------- ----------- --------------------
+          1 Jhon                       2019-01-01         100           1 Avengers            
+          2 Daniel                     2019-01-02         110           2 Frozen 2            
+          3 Jade                       2019-01-03         120           NULL NULL                
+          3 Jade                       2019-01-04         150           NULL NULL  
+
+3rd row of customer table not satisfies the condition so null value for right table
+*/
+
+
+
+
+/*
+In SQL, both CROSS APPLY and OUTER APPLY are used to join a table with a table-valued function (TVF) or a derived table. However, their behavior differs when there are no matching rows.
+
+outer query run 1st and for each row of outer query inner query(right query ) will be executed  in case of both cross apply and outer apply
+
+Without any condition outer apply is same as inner apply , both returns same result, and they acts like a cross join.
+
+but when we mention conditions then cross apply acts like a inner join and returns rows combinly from left and right query where condition met, and exclude records where condition not met
+
+when condition is mentioned then outer apply acts like left join and it returns all records from left table and where condition is not satisfied then it takes null for right side table .
+*/
+
+
+/*
+without any condition both cross apply and outer apply returns same result and they acts like cross join.
+
+select * from customer cross apply (select * from movies) as derived_table
+
+customer_id name                 visited_on       amount      movie_id    title               
+----------- -------------------- ---------------- ----------- ----------- --------------------
+          1 Jhon                       2019-01-01         100           1 Avengers            
+          2 Daniel                     2019-01-02         110           1 Avengers            
+          3 Jade                       2019-01-03         120           1 Avengers            
+          3 Jade                       2019-01-04         150           1 Avengers            
+          1 Jhon                       2019-01-01         100           2 Frozen 2            
+          2 Daniel                     2019-01-02         110           2 Frozen 2            
+          3 Jade                       2019-01-03         120           2 Frozen 2            
+          3 Jade                       2019-01-04         150           2 Frozen 2            
+*/
