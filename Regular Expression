@@ -5,10 +5,10 @@ select * from (values('Low Salary'),('12757k'),('High 235'),('363636')) temp_tab
  where value  like '%[^0-9]%'
  
  /*
- like '%[0-9]%'-->  cointain atleast single digit chareceter
+ like '%[0-9]%'-->  cointain atleast one digit
  not like '%[0-9]%'--> do not cointain even single digit
  
- like '%[^0-9]%' --> cointain atleast single charecter apart from digit
+ like '%[^0-9]%' --> cointain atleast one charecter apart from digit
  not like '%[^0-9]%'--> do not cointain even single charecter apart from digit
  
  */
@@ -37,6 +37,31 @@ for ex--> [_]  [%] etc
 underscore means any single charecter
 and % means zero or more charecters  but if we have to search directly for _ ot % we should escape them  1st
 
-To get index of a charecter using pattern
+Negating Character Classes
+Using the ^ symbol inside square brackets negates the class, meaning it will match any character not in the class
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+PATINDEX
+PATINDEX  function in SQL Server finds the starting position of a pattern within a string. 
+
+PATINDEX ( '%pattern%', expression )   <--expression: The string in which you want to search for the pattern.
+
+
+To get starting position of a  first digit in a string
 SELECT PATINDEX('%[0-9]%', 'User123');
 This query would return 5, as the first digit (1) appears at the fifth position in the string "User123"
+
+
+Find the position of the first non-alphanumeric character
+SELECT PATINDEX('%[^a-zA-Z0-9]%', 'Data-123');                             --> like '%[^a-zA-Z0-9]%'  cointain atleast one charecter apart from alphabets and digits so it is giving starting position of charecter apart from alphanumeric.
+This returns 5 because the first non-alphanumeric character is the hyphen (-) at the 5th position.
+
+
+Find U.S. phone numbers in (XXX) XXX-XXXX format
+SELECT PATINDEX('%([0-9][0-9][0-9]) [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]%', '(123) 456-7890'); 
+
+By default, PATINDEX is case-insensitive, but you can make it case-sensitive by specifying a case-sensitive collation.
+
+Example: Case-sensitive search for "SQL"
+SELECT PATINDEX('%SQL%' COLLATE Latin1_General_BIN, 'Learning Sql is fun!');
+
