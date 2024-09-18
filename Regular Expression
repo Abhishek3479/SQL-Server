@@ -1,0 +1,42 @@
+Best Example
+
+--creating temporary table with 1 column
+select * from (values('Low Salary'),('12757k'),('High 235'),('363636')) temp_table(value)
+ where value  like '%[^0-9]%'
+ 
+ /*
+ like '%[0-9]%'-->  cointain atleast single digit chareceter
+ not like '%[0-9]%'--> do not cointain even single digit
+ 
+ like '%[^0-9]%' --> cointain atleast single charecter apart from digit
+ not like '%[^0-9]%'--> do not cointain even single charecter apart from digit
+ 
+ */
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+[a-z]: Matches any lowercase letter.
+[A-Z]: Matches any uppercase letter.
+[0-9]: Matches any digit.
+[abc]: Matches any of the characters a, b, or c.
+[^abc]: Matches any character except a, b, or c.
+
+
+The LIKE operator allows pattern matching using two wildcard characters:
+
+%: Matches any string of any length (including zero length).
+_: Matches exactly one character.
+
+
+To Search for special charecters _ or % sign we can escape them using square brackets  
+for ex--> [_]  [%] etc
+underscore means any single charecter
+and % means zero or more charecters  but if we have to search directly for _ ot % we should escape them  1st
+
+To get index of a charecter using pattern
+SELECT PATINDEX('%[0-9]%', 'User123');
+This query would return 5, as the first digit (1) appears at the fifth position in the string "User123"
