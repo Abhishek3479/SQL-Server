@@ -23,4 +23,13 @@ value1         value2
 Low Salary     Low Salary    
 High Salary    High Salary   
 Average Salary Average Salary
+
+
+
+Alternate way for doing above using union operator
+select 'High Salary' as category 
+union
+select 'Low Salary' as category 
+union
+select 'Average Salary' as category
 */
