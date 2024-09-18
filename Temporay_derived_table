@@ -1,0 +1,26 @@
+--creating temporary table with 1 column
+select * from (values('Low Salary'),('Average Salary'),('High Salary')) temp_table(value)
+
+/*
+value         
+--------------
+Low Salary    
+Average Salary
+High Salary
+*/
+
+--For 2 columns
+SELECT *
+FROM (VALUES 
+    ('Low Salary', 'Low Salary'), 
+    ('High Salary', 'High Salary'), 
+    ('Average Salary', 'Average Salary')
+) AS temp_table(value1, value2);
+
+/*
+value1         value2        
+-------------- --------------
+Low Salary     Low Salary    
+High Salary    High Salary   
+Average Salary Average Salary
+*/
