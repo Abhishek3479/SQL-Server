@@ -1,0 +1,98 @@
+<h>Using DML Commands In a More Better Way</h>
+
+Definition
+In SQL Server, virtual tables refer to temporary, system-generated tables that exist during the execution of certain SQL operations, such as INSERT, UPDATE, DELETE, and MERGE
+DML operations.
+
+When we delete any row from any table then sql server creates a virtual table named deleted that store the row before it got deleted and we can now 
+return that stored deleted row from deleted table into result grid, also we store that deleted row into some other table instead of returing it to result grid.
+
+similary, inserted table got created when we used to insert the data and inserted table store the record that is being inserted.
+
+in case of update command both deleted and inserted table got created, deleted table cointains old row that was before update and inserted table stores newly updated record
+
+deleted, inserted tables stores record that got effected during dml operations.
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+example-->
+---If we want to return row that is being deleted
+
+delete from person 
+OUTPUT deleted.id, deleted.email
+where id=2
+
+id          email                                                                                                                                                                                                                                                          
+----  --------------------     <-- deleted row
+2       bob@example.com 
+
+<b>The OUTPUT clause returns the data of the deleted row(s).
+The keyword deleted refers to a special virtual table that holds the values of the rows before they were deleted.<b/>
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+INSERT:
+
+The INSERTED virtual table is populated with the rows that are being inserted.
+There is no DELETED table because no data was removed.
+
+Create table  Person (Id int, Email varchar(255))
+
+insert into Person (id, email) 
+output inserted.*
+values ('1', 'john@example.com')
+
+Id          Email                                                                                                                                                                                                                                                          
+---   ------------------------             <---Inserted row
+1       john@example.com 
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+UPDATE:  Update=delete+insert
+
+update Person set id=9 
+output deleted.id,inserted.id
+where id=1
+
+ id         id         
+----      ------          <--- output from inserted and deleted tables
+ 1          9
+
+The INSERTED table contains the new values after the update.
+The DELETED table contains the old values before the update.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Suppose I have to store the outputs, returned by OUTPUT clause , into some table then we can use --> into table_name(column1,column2...)
+
+for example -->
+for update statement
+
+update person set id=9
+output deleted.id,inserted.id
+into archive_table(id1,id2)               <-- inserting deleted(old id) and inserted(new id) into table name archive_table 
+where id=1
+
+--The number of columns in parenthesis of archive_table must be equal to no of columns in a table returned by output command.
+
+--the table in which we are inserting the data from virtual tables, deleted and inserted, must be declare/created prior it's use. 
+The INTO target_table (column_list) part of the OUTPUT clause allows you to capture the result of the OUTPUT clause and insert it into another table, which can be useful for logging, auditing, or archiving the data that was affected by INSERT, UPDATE, DELETE, or MERGE operations.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
