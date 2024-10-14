@@ -1,0 +1,58 @@
+Problem -- link
+https://leetcode.com/problems/department-top-three-salaries/description/
+
+
+
+solution
+
+
+Create table Employee (id int, name varchar(255), salary int, departmentId int)
+Create table Department (id int, name varchar(255))
+Truncate table Employee
+insert into Employee (id, name, salary, departmentId) values ('1', 'Joe', '85000', '1')
+insert into Employee (id, name, salary, departmentId) values ('2', 'Henry', '80000', '2')
+insert into Employee (id, name, salary, departmentId) values ('3', 'Sam', '60000', '2')
+insert into Employee (id, name, salary, departmentId) values ('4', 'Max', '90000', '1')
+insert into Employee (id, name, salary, departmentId) values ('5', 'Janet', '69000', '1')
+insert into Employee (id, name, salary, departmentId) values ('6', 'Randy', '85000', '1')
+insert into Employee (id, name, salary, departmentId) values ('7', 'Will', '70000', '1')
+Truncate table Department
+insert into Department (id, name) values ('1', 'IT')
+insert into Department (id, name) values ('2', 'Sales')
+
+
+
+
+/* Write your T-SQL query statement below */
+
+declare @department_name varchar(20)
+
+declare department_cursor cursor for 
+select distinct name from department 
+
+open department_cursor
+
+fetch next from department_cursor into @department_name
+
+declare @temp table(department varchar(50), employee varchar(50), salary int)
+
+while @@fetch_status=0 
+begin
+
+    insert into @temp
+    select top 3  d.name department, e.name employee, salary from employee e inner join department d on e.departmentid=d.id  
+    where d.name=@department_name  order by salary desc
+  
+    fetch next from department_cursor into @department_name
+
+end
+
+close department_cursor
+
+deallocate department_cursor
+
+select * from @temp
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
