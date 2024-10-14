@@ -51,8 +51,66 @@ close department_cursor
 
 deallocate department_cursor
 
-select * from @temp
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+We cannot fetch data from cursor to table instead we need to use scalar variables
+
+fetch next from department_cursor into @temp   ❌❌❌❌❌
+fetch next from department_cursor into @id, @name, @salary, @departmentId;    ✔️✔️✔️✔️✔️
+Now we can store the obtained result within a table
+
+
+-- way to declare variables
+DECLARE @id INT, @name VARCHAR(255), @salary INT, @departmentId INT;
 
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+concepts with cursors
+
+1-->@@FETCH_STATUS
+Value of  @@FETCH_STATUS  returns 0 if the FETCH operation was successful.
+returns -1 if no more rows are available.
+returns -2 if the row fetched is not available (for example, if it has been deleted).
+
+2-->In SQL Server, cursors are primarily designed to fetch one row at a time.
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+How to use cursors
+
+Declare a Cursor: First, you define a cursor by associating it with a SQL query. This query can retrieve rows from one or more tables.
+
+Open the Cursor: The cursor must be opened to allocate the memory and process the result set.
+
+Fetch Rows: Once opened, you can retrieve (or "fetch") rows from the result set one at a time.  
+
+Process Each Row: For each fetched row, you can apply some logic, store data in variables, or make updates to other tables.
+
+Close the Cursor: After processing, the cursor should be closed to release the resources associated with it.
+
+Deallocate the Cursor: Finally, the cursor should be deallocated to remove it from memory.
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+Set-based operations vs row-by-row processing
+Set-based operations in SQL refer to the ability to work with multiple rows of data at once rather than processing individual rows one at a time. 
+Set-based operations are generally more efficient and lead to better performance compared to row-by-row processing methods like cursors.
+
+In set based operations we use declarative queries
+Declarative queries specify what data you want to retrieve or manipulate without detailing how to perform the operation. SQL is primarily a declarative language.
+
+example of declarative queries is queries consist of select , update, delete , joins etc keywords
+
+Set-based operations generally perform better than cursor-based operations because they allow the database engine to optimize execution plans and process multiple rows at once.
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
