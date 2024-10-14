@@ -96,11 +96,77 @@ Close the Cursor: After processing, the cursor should be closed to release the r
 Deallocate the Cursor: Finally, the cursor should be deallocated to remove it from memory.
 
 
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+How cursor works
 
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+cursors in SQL Server do not physically store data. Instead, they provide a mechanism to iterate through a result set that is returned by a query.
+
+Result Set: When you declare and open a cursor, it executes the query associated with it, and this query returns a result set. 
+The result set is held in memory, but not stored persistently in the database.
+
+Pointer: The cursor acts like a pointer that allows you to fetch rows one at a time from the result set.
+The data itself remains in the result set; the cursor doesn’t store it separately.
+
+Fetching Data: You can retrieve individual rows from this result set using FETCH statements. 
+The cursor only points to the current row that it has fetched, and once the cursor moves on, it does not hold onto the previous row's data.
+
+Temporary Storage: While the cursor holds a reference to the result set in memory, this is only temporary. Once you close or deallocate the cursor, the result set is discarded.
+
+
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+###---Types of cursors
+
+All cursors allow to change the data of tables used during declaration of cursor,  
+in case of static cursor if there will be any change in underlying data then it will not shown while using cursor 
+because static cursor take snapsot of result before opening of cursor from result grid and use that snapshot of data , so if now we change the actual data that cursor using no impact shown while using static cursor.
+
+in case of keyset cursor only update to data rows visible while using rows but insert etc will not be shown. 
+
+in case of remaining three cursors they show all changes in data while using cursors
+
+
+we cannot use last and prior etc keyword with forward_only or read_only cursors but can use it with remaining three cursor to move backward in result grid or acn directly jump to a particular location.
+
+we can use absolute n with static or keyset cursor's only 
+
+FETCH absolute 7  FROM emp_cursor INTO @Name, @Salary;  <--to jump to 7th row directly from start
+
+
+
+static cursor  
+
+dynamic cursor
+
+keyset cursor
+
+forward_only cursor->  moves in forward direction only
+
+read_only cursor-> -> moves in forward direction only
+
+
+
+
+
+
+Direction:
+
+NEXT: Fetches the next row in the result set (default direction).
+PRIOR: Fetches the previous row in the result set.
+FIRST: Fetches the first row of the result set.
+LAST: Fetches the last row of the result set.
+ABSOLUTE n: Fetches the row at the specified absolute position n in the result set (1-based index).
+RELATIVE n: Fetches the row relative to the current position of the cursor. If n is positive, it moves forward; if negative, it moves backward.
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Set-based operations vs row-by-row processing
 Set-based operations in SQL refer to the ability to work with multiple rows of data at once rather than processing individual rows one at a time. 
-Set-based operations are generally more efficient and lead to better performance compared to row-by-row processing methods like cursors.
+Set-based operations are generally more efficient and lead to better performance compared to row-by-row processing methods like cursors,
+because Set-based operations allow the database engine to optimize execution plans and process multiple rows at once.
 
 In set based operations we use declarative queries
 Declarative queries specify what data you want to retrieve or manipulate without detailing how to perform the operation. SQL is primarily a declarative language.
