@@ -50,9 +50,11 @@ outer query run 1st and for each row of outer query inner query(right query ) wi
 
 Without any condition outer apply is same as inner apply , both returns same result, and they acts like a cross join.
 
-but when we mention conditions then cross apply acts like a inner join and returns rows combinly from left and right query where condition met, and exclude records where condition not met
+but when we mention conditions then cross apply acts like a inner join((but cross apply result can be different from result obtained from inner join) )
+and returns rows combinly from left and right query where condition met, and exclude records where condition not met
 
-when condition is mentioned then outer apply acts like left join and it returns all records from left table and where condition is not satisfied then it takes null for right side table .
+when condition is mentioned then outer apply acts like left join(but outer apply result can be different from result obtained from left join) 
+and it returns all records from left table and where condition is not satisfied then it takes null for right side table .
 */
 
 
