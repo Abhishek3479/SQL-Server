@@ -204,8 +204,34 @@ end
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+create table orders
+(
+order_ID VARCHAR(2),
+ITEM VARCHAR(2),
+QTY INT
+);
+
+insert into orders values('O1','A1',5);
+insert into orders values('O2','A2',1);
+insert into orders values('O3','A3',3);
+
+select * from orders;
 
 
---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Using recursive CTE
+
+WITH RCTE AS
+( SELECT ORDER_ID,ITEM,QTY, 1 as CNT FROM orders  -- anchor_query
+  UNION ALL
+  SELECT a.ORDER_ID,a.ITEM,b.QTY,b.CNT + 1 FROM orders a inner join RCTE b -- recursive_query
+  on a.order_id=b.order_id
+  WHERE b.cnt+1 <= a.QTY)
+  
+  select ORDER_ID,ITEM,1 as CNT from RCTE order by order_id,item;
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
