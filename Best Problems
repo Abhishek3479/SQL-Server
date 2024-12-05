@@ -1,0 +1,211 @@
+Problem statement 
+input orders table
+orders_ID  ITEM         QTY        
+---------  ------      ------
+O1         A1             5
+O2         A2             1
+O3         A3             3
+
+We have to explode the given table into below style
+
+Output:
+orders_ID ITEM QTY        
+--------- ---- -----------
+O1        A1             1
+O1        A1             1
+O1        A1             1
+O1        A1             1
+O1        A1             1
+O2        A2             1
+O3        A3             1
+O3        A3             1
+O3        A3             1
+
+
+--Approch
+We will travel each record of orders table and run a inner loop for qty times of that record to insert that record qty times with a temporary table
+for example for 1st record qty=5 so we will run inner loop 5 times to insert the record 5 times into temp table
+
+To traverse on each row(to do row by row operation) we offset rows each time and fetch next 1 row 
+
+
+
+@@Solution
+create table orders
+(
+orders_ID VARCHAR(2),
+ITEM VARCHAR(2),
+QTY INT
+);
+
+insert into orders values('O1','A1',5);
+insert into orders values('O2','A2',1);
+insert into orders values('O3','A3',3);
+
+-- select * from orders
+
+
+
+declare @temp table(orders_ID VARCHAR(2), ITEM VARCHAR(2), QTY INT);
+
+declare @skip int=0
+declare @repetition int=0
+
+
+while @repetition is not null
+begin
+  
+  set  @repetition=(select  qty from orders order by orders_id
+                  offset @skip rows fetch next 1 rows only)
+  
+  while @repetition!=0 and @repetition is not null
+  begin
+    insert into @temp
+    select orders_ID, ITEM, 1 from orders order by orders_id offset @skip rows fetch next 1 rows only
+    set @repetition=@repetition - 1 
+  end
+  set @skip = @skip +1
+  
+end
+
+select * from @temp
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------Optimizing the above code
+
+Instead of filtering table again and again just taking value from table once and using them
+
+
+declare @temp table(order_ID VARCHAR(2), ITEM VARCHAR(2), QTY INT);
+
+declare @skip int=0
+declare @order_id VARCHAR(2), @item VARCHAR(2), @qty int
+set @qty=0
+
+while @qty is not null
+begin
+  
+  select @order_id=order_id, @item=item, @qty=qty from orders order by order_id
+                  offset @skip rows fetch next 1 rows only
+  if @qty=0          ---If we have exceeded the last row then select will give blank output in result grid now, the value of @qty is equal to its previous value which is 0.
+  begin
+   break
+  end
+  while  @qty!=0
+  begin
+    insert into @temp(order_id, item, qty) VALUES (@order_id, @item, 1);
+    set @qty=@qty - 1 
+  end
+  set @skip = @skip + 1
+
+end
+
+select * from @temp
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Learnings
+
+1-->When we only declare a variable and not initialized it then it point's to NULL
+declare @id int
+select @id     --> NULL
+
+
+
+
+2-->When we try to assign a value to a variable using table column then if we excced the last row of table then no data will saved to that variable then the last value of that variable is taken
+
+create table orders
+(
+orders_ID VARCHAR(2),
+ITEM VARCHAR(2),
+QTY INT
+);
+
+insert into orders values('O1','A1',5);
+insert into orders values('O2','A2',1);
+insert into orders values('O3','A3',3);
+
+
+
+For Example if a table has 3 columns only and when offset 3 rows then it will cross the last record so no we cannot assign any not null values to @var, 
+now @var points to the previous value of @var instead pointing to null 
+declare @var VARCHAR(2)
+set @var=1
+select @var=item from orders order by order_id offset 4 rows fetch next 1 rows only
+select @var     -->1 
+
+
+
+declare @var VARCHAR(2)
+select @var=item from orders order by order_id offset 4 rows fetch next 1 rows only
+select @var     -->NUll    (since previously it was null)
+
+
+
+--Very very very important behaviour of variable in sql server
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+3--> @@ROWCOUNT contains the number of rows affected by the last statement
+if @@ROWCOUNT=0 then no record affected last time.
+means we can break the loop
+
+
+
+Iterating through each row of table
+
+create table orders
+(
+order_ID VARCHAR(2),
+ITEM VARCHAR(2),
+QTY INT
+);
+
+insert into orders values('O1','A1',5);
+insert into orders values('O2','A2',1);
+insert into orders values('O3','A3',3);
+
+-- select * from orders
+
+
+declare @skip int=0
+
+while 1=1
+begin
+  select * from orders order by order_id offset @skip rows fetch next 1 rows only
+  if @@ROWCOUNT=0 break
+  set @skip=@skip+1 
+end
+
+
+
+
+--More usable version of above 
+we can create number of variales equal to number of columns and iterate through each row and get the value
+
+declare @skip int=0
+declare @order_id VARCHAR(2), @item VARCHAR(2), @qty int
+
+while 1=1
+begin
+  select @order_id=order_id, @item=item, @qty=qty from orders order by order_id
+  offset @skip rows fetch next 1 rows only  
+  if @@ROWCOUNT=0 break
+  set @skip=@skip+1 
+  
+  select @order_id, @item, @qty
+end
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
