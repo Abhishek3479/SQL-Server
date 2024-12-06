@@ -232,6 +232,130 @@ WITH RCTE AS
 
 
 
+
+
+How CTE Works
+
+Syntax:-
+with temp as
+(anchor query     
+union all
+recursive query)
+
+
+the recursive query uses the most recently generated rows to produce new rows.
+
+While the UNION ALL accumulates rows after each iteration, only the rows generated in the current iteration are 
+used as input for the next iteration.
+
+
+
+
+Unprocessed Rows:
+These are rows generated in the last iteration (or the anchor query) that have not yet been used as input in the recursive part of the query.
+They are the input for the next iteration of the recursive query.
+
+Processed Rows:
+These are rows that have already been used as input in a recursive iteration to generate new rows.
+Once rows have been "processed" in a recursive step, they do not participate in subsequent iterations.
+
+
+only the rows generated in the last iteration (or the anchor query) will be used as an input in next recursive query
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+### Step-by-Step Execution Including Joins:
+
+#### **Base Case (Initialization)**:
+
+| order_ID | ITEM | occurrence |
+|----------|------|------------|
+| O1       | A1   | 1          |
+| O2       | A2   | 1          |
+| O3       | A3   | 1          |
+
+
+
+---
+
+#### **Temp Table after 1st Recursive Iteration**:
+
+| order_ID | ITEM | occurrence |
+|----------|------|------------|
+| O1       | A1   | 1          |
+| O2       | A2   | 1          |
+| O3       | A3   | 1          |
+| O1       | A1   | 2          |
+| O3       | A3   | 2          |
+
+
+Below rows are now processed after 1st recursive iteration
+| O1       | A1   | 1          |
+| O2       | A2   | 1          |
+| O3       | A3   | 1          |
+
+
+Below are newly generated rows now,Only these 2 newly generated in current iteration(unprocessed rows) rows will be used in next recusive query, 
+whole temp table will not be used, only currently generated queries will be used in next recursive query
+| O1       | A1   | 2          |
+| O3       | A3   | 2          |
+---
+
+#### **Temp Table after 2nd Recursive Iteration**:
+
+| order_ID | ITEM | occurrence |
+|----------|------|------------|
+| O1       | A1   | 1          |
+| O2       | A2   | 1          |
+| O3       | A3   | 1          |
+| O1       | A1   | 2          |
+| O3       | A3   | 2          |
+| O1       | A1   | 3          |
+| O3       | A3   | 3          |
+
+Below are newly generated rows now, these 2 newly generated rows will be used in next recusive query, whole temp table will not be used.
+only currently generated queries will be used in next recursive query
+| O1       | A1   | 3          |
+| O3       | A3   | 3          |
+
+---
+
+#### **3rd Recursive Iteration**:
+
+| order_ID | ITEM | occurrence |
+|----------|------|------------|
+| O1       | A1   | 1          |
+| O2       | A2   | 1          |
+| O3       | A3   | 1          |
+| O1       | A1   | 2          |
+| O3       | A3   | 2          |
+| O1       | A1   | 3          |
+| O3       | A3   | 3          |
+| O1       | A1   | 4          |
+
+Newly generated
+| O1       | A1   | 4          |
+
+---
+
+#### **4th Recursive Iteration**:
+
+
+| order_ID | ITEM | occurrence |
+|----------|------|------------|
+| O1       | A1   | 1          |
+| O2       | A2   | 1          |
+| O3       | A3   | 1          |
+| O1       | A1   | 2          |
+| O3       | A3   | 2          |
+| O1       | A1   | 3          |
+| O3       | A3   | 3          |
+| O1       | A1   | 4          |
+| O1       | A1   | 5          |
+
+---
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------
