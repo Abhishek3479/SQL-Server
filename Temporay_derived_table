@@ -33,3 +33,23 @@ select 'Low Salary' as category
 union
 select 'Average Salary' as category
 */
+
+
+-- any operator and all operator always uses column values not row values like in operator
+
+Difference betwween (in operator) and (any operator)
+
+in case of in operator we use row values like in(5,6,7) but in case of any or all operator we must have to compare with column values for example like below
+select * from product where productid<any (select 5,6,7) ❌
+
+SELECT * FROM product WHERE productid<ANY (SELECT value FROM (VALUES (5), (6), (7)) AS derived_table(value)); ✔
+
+SELECT value FROM (VALUES (5), (6), (7)) AS derived_table(value)
+value
+5
+6
+7
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
