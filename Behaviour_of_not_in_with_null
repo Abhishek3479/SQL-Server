@@ -1,3 +1,18 @@
+
+Conclusion-> comparision of any value(null or not null) with NULL always return False value.
+comparision using [=, !=, in, not in, any, all] etc operators always return False if there is null value on lhs or rhs side.
+
+for ex-> 2  not in(3,4, null, 5)  
+on comparing 
+2!=3 return True
+2!=4 return True
+2!=null return False
+2!=5 return True
+
+so final comparision
+[True, True, False, True]
+taking &(and) of above all return False
+
 -- Step 1: Create the table
 CREATE TABLE bst (
     n INT,
