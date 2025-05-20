@@ -1,0 +1,156 @@
+ View vs Materialized View
+
+### In a Materialized View:
+ The underlying query runs only when the view is created or refreshed.
+ After that, the result is stored physically, just like a regular table.
+ When you run a query on a materialized view, it fetches precomputed results, not from the original tables (unless it's refreshed).
+
+---
+
+### Example to Illustrate:
+Let's say you have a large sales table with millions of rows:
+
+CREATE MATERIALIZED VIEW total_sales_mv AS
+SELECT region, SUM(amount) AS total_amount
+FROM sales
+GROUP BY region;
+
+
+Now:
+ Querying total_sales_mv:
+
+--No aggregation is performed at query time. It just fetches stored results.
+SELECT * FROM total_sales_mv;
+
+
+ If new sales records are added to sales, the materialized view will not reflect those changes until you run below command to refresh the Materialized View:
+REFRESH MATERIALIZED VIEW total_sales_mv;
+
+
+---
+
+### Comparison with a Normal View:
+
+CREATE VIEW total_sales_view AS
+SELECT region, SUM(amount) AS total_amount
+FROM sales
+GROUP BY region;
+
+--The SUM aggregation is recalculated live from the sales table every time.
+SELECT * FROM total_sales_view;
+
+
+
+### In Summary:
+ Materialized View: Stored data physically and do not recompute (rerun the underlying query) until it got refreshed.
+ Normal View: Do not store data physically every time takes data from underlying table or query (each time we get latest data because when we run normal view then each time underlying query will be  recomputed).
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Difference between Views and Stored Procedures in a database system.
+
+## 🔍 What is a View?
+
+A View is a virtual table created by writing a SQL query. It doesn’t store the data physically, but pulls it from one or more underlying tables when you query the view.
+
+✅ Can Views Only Contain SELECT?
+Yes — when you create a view, it must be based on a SELECT statement only. You cannot create a view using INSERT, UPDATE, or DELETE.
+
+### ✅ Key Features of Views:
+
+* Acts like a table (can be queried using SELECT)
+* Stores a SQL query, not the data itself
+* Simplifies complex queries
+* Can be used to restrict access (security)
+
+
+## 🔧 What is a Stored Procedure?
+
+A Stored Procedure is a set of SQL statements saved in the database and executed as a unit. It can include logic like IF, LOOP, variables, etc.—not just simple SELECT queries.
+
+### ✅ Key Features of Stored Procedures:
+
+* Performs actions (e.g., insert, update, delete)
+* Can take input and output parameters
+* Contains procedural logic (e.g., conditions, loops)
+* Can call other procedures or functions
+* Useful for repetitive or complex operations
+
+### 📘 Example of a Stored Procedure:
+
+Suppose you want to give a 10% bonus to all employees in the IT department.
+
+sql
+CREATE PROCEDURE GiveBonusToIT()
+BEGIN
+  UPDATE employees
+  SET salary = salary * 1.10
+  WHERE department = 'IT';
+END;
+
+
+To run it:
+
+sql
+CALL GiveBonusToIT();
+
+
+This will update data, unlike a view which just displays it.
+
+---
+
+## 🔍 Views vs Stored Procedures: Summary Table
+
+| Feature                | View                           | Stored Procedure                  |
+| ---------------------- | ---------------------------------- | ------------------------------------- |
+| Purpose                | Display/query data (virtual table) | Perform operations or logic           |
+| Stores data?           | ❌ No (just a query)                | ✅ May modify data                     |
+| Can accept parameters? | ❌ No                               | ✅ Yes                                 |
+| Can include logic?     | ❌ No (only SQL SELECT)             | ✅ Yes (IF, LOOP, etc.)                |
+| Can modify data?       | ❌ Usually not                      | ✅ Yes (INSERT, UPDATE, DELETE)        |
+| Use case               | Simplify SELECTs, restrict access  | Automate operations, reuse logic      |
+| Output                 | Tabular result                     | No or tabular (can return values too) |
+
+---
+
+
+✅ Can Views Only Contain SELECT?
+Yes — when you create a view, it must be based on a SELECT statement only. You cannot create a view using INSERT, UPDATE, or DELETE.
+
+❓Can We Use INSERT, UPDATE, or DELETE on a already created View?
+Yes — sometimes. Once a view is created, you can use INSERT, UPDATE, or DELETE on the view itself, and it will affect the underlying base table if certain conditions are met.
+
+📌 Conditions for Updatable Views
+A view is updatable only if:
+  It is based on a single table
+
+  It does not contain:
+  DISTINCT
+  GROUP BY
+  HAVING
+  UNION
+  JOIN (in some databases)
+  Aggregate functions like SUM(), AVG(), etc.
+
+✅ Updatable View Example:
+
+CREATE VIEW active_employees AS
+SELECT emp_id, name, salary FROM employees WHERE status = 'active';
+You can do:
+
+--This will update the base employees table.
+UPDATE active_employees
+SET salary = salary + 1000
+WHERE emp_id = 101;
+
+
+❌ Non-updatable View Example:
+--This view cannot be updated directly because it has aggregation and GROUP BY.
+CREATE VIEW salary_summary AS
+SELECT department, AVG(salary) AS avg_salary
+FROM employees
+GROUP BY department;
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
