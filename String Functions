@@ -1,0 +1,251 @@
+String Function in sql-server
+
+| Function         | Description                                                                              |
+|------------------|-----------------------------------------------------------------------------------------|
+| ASCII            | Returns ASCII code of the leftmost character of a character expression.                 |
+| CHAR             | Converts integer value (ASCII code) to a character.                                     |
+| CHARINDEX        | Returns the index position of a specified expression in another expression.             |
+| CONCAT           | Combines two or more strings into one string.                                           |
+| CONCAT_WS        | Concatenates two or more strings using a separator.                                     |
+| DIFFERENCE       | Returns the difference between SOUNDEX values of character expressions.                 |
+| FORMAT           | Formats the expression using specified format.                                          |
+| LEN              | Returns the length of a string (number of characters).                                  |
+| LEFT             | Returns the leftmost character(s) from an expression.                                   |
+| LTRIM            | Removes leading spaces from a string.                                                   |
+| LOWER            | Converts a string to lowercase.                                                         |
+| NCHAR            | Returns the Unicode character at the specified integer value.                           |
+| PATINDEX         | Returns starting index of the first occurrence of a pattern.                            |
+| QUOTENAME        | Adds delimiters to make string a valid SQL Server delimited identifier.                 |
+| REPLACE          | Replaces all occurrences of a substring within string.                                  |
+| REPLICATE        | Repeats a string a specified number of times.                                           |
+| REVERSE          | Reverses a string.                                                                     |
+| RIGHT            | Returns the rightmost character(s) from an expression.                                  |
+| RTRIM            | Removes trailing spaces from a string.                                                  |
+| SOUNDEX          | Returns SOUNDEX code for a string.                                                      |
+| SPACE            | Returns a string of the specified number of space characters.                           |
+| STR              | Converts a numeric value to a string.                                                   |
+| STRING_AGG       | Concatenates values from multiple rows into a single string, separated by a character.  |
+| STRING_ESCAPE    | Escapes special characters in a string.                                                 |
+| STRING_SPLIT     | Splits a string into rows using a specified separator.                                  |
+| STUFF            | Deletes part of a string and inserts other part at a specific position.                 |
+| SUBSTRING        | Extracts a substring from a string.                                                     |
+| TRANSLATE        | Replaces characters in a string with another set of characters.                         |
+| TRIM             | Removes leading and trailing spaces.                                                    |
+| UNICODE          | Returns Unicode value (integer) of the first character.                                 |
+| UPPER            | Converts a string to uppercase.                                                         |
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+##STRING_AGG
+
+STRING_AGG(expression, separator) [WITHIN GROUP (ORDER BY order_expression ASC | DESC)]
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+## STRING_SPLIT
+
+STRING_SPLIT ( string_expression, separator [, enable_ordinal ] )
+
+
+- `string_expression`: The input string to split (any character type like `VARCHAR`, `NVARCHAR`).
+- `separator`: A single character used as the delimiter.
+- `enable_ordinal` (optional): If set to `1`, includes an ordinal column indicating the position of each substring; if `0` or omitted, only the split values are returned.
+
+
+### Important Notes
+
+- The order of the output rows is not guaranteed unless `enable_ordinal` is used.
+- Empty strings between separators are returned as empty rows.
+- The optional `enable_ordinal` parameter requires SQL Server 2022 or later.
+
+***
+
+### Examples Using `STRING_SPLIT`
+
+**Splitting with Spaces**
+
+SELECT value
+FROM STRING_SPLIT('SQL Server is great', ' ');
+
+
+**Output:**
+
+| value  |
+|--------|
+| SQL    |
+| Server |
+| is     |
+| great  |
+
+3. **Using Optional `enable_ordinal` Parameter (SQL Server 2022+)**
+
+SELECT value, ordinal FROM STRING_SPLIT('one,two,three', ',', 1);
+
+
+**Output:**
+
+| value | ordinal |
+|-------|---------|
+| one   | 1       |
+| two   | 2       |
+| three | 3       |
+
+4. **With Table Data Example**
+
+Given a table `Employees` with a `Skills` column:
+
+| EmpID | Name  | Skills                |
+|-------|-------|-----------------------|
+| 1     | Alice | SQL,Python,Excel      |
+| 2     | Bob   | Java,Python,HTML      |
+
+Query to split skills into rows for a specific employee:
+
+SELECT value AS Skill FROM Employees CROSS APPLY STRING_SPLIT(Skills, ',') WHERE Name = 'Alice';
+
+**Output:**
+
+| Skill  |
+|--------|
+| SQL    |
+| Python |
+| Excel  |
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Explanation of SQL Server CHARINDEX Function
+
+### What is `CHARINDEX`?
+
+- The `CHARINDEX` function searches for a specified substring within a given string and returns the **starting position (index)** of that substring.
+- If the substring is not found, it returns **0**.
+- The function is **case-insensitive** by default, but can be made case-sensitive with the use of collations.
+
+CHARINDEX ( substring, string [, start_location] )
+
+- `substring`: The string or character you want to find.
+- `string`: The string to be searched.
+- `start_location` (optional): The position in the string to start searching from (default is 1, meaning the beginning of the string).
+
+
+
+##Find the position of substring 's' in the string 'sky is the blue':
+
+select charindex('s', 'sky is the blue') as postion
+
+postion    
+-------
+  1
+
+#To search for 2nd s started searching from position 2
+select charindex('s', 'sky is the blue', 2) as postion
+
+postion    
+-------
+  6
+
+
+### 2nd way to fin 2nd s
+select charindex('s', 'sky is the blue', charindex('s', 'sky is the blue')+1) as postion
+
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Replace all "a" with "c", demonstrating case-sensitivity depends on collation:
+REPLACE ( string_expression, old_substring, new_substring )
+
+##Replace all "a" with "c", demonstrating case-sensitivity depends on collation:
+SELECT REPLACE('ABC ABC ABC', 'a', 'c') AS Result;
+
+   Result   
+-------------
+ cBC cBC cBC                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+##SUBSTRING
+SUBSTRING(input_string, start, length);
+input_string: The string expression to extract from (can be a column or literal).
+
+start: The starting position in the string where extraction begins (1-based index).
+
+length: The number of characters to extract from the starting position.
+
+
+Got it 👍 — You’re asking about the **`LEFT`** and **`RIGHT`** string functions in SQL Server.  
+Here’s a detailed explanation with syntax and examples.
+
+***
+
+## **1. LEFT Function**
+
+### **Purpose**
+Returns the **leftmost** number of characters from a string.
+
+LEFT(string_expression, number_of_characters)
+- `string_expression` → The original string or column.
+- `number_of_characters` → How many characters to return from the **start** (left side).
+
+SELECT LEFT('SQL Server', 3) AS Result;
+Result
+------
+SQL
+
+
+## **2. RIGHT Function**
+
+RIGHT(string_expression, number_of_characters)
+
+SELECT RIGHT('SQL Server', 6) AS Result;
+
+Result
+------
+Server
+
+#------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**UPPER**, **TRIM**, and **REVERSE**:
+
+## 1. UPPER
+
+- **Purpose**: Converts all characters in a string to uppercase.
+- **Syntax**:  
+  UPPER(string_expression)
+  
+  SELECT UPPER('Sql Server') AS UppercaseString;
+  -- Returns: 'SQL SERVER'
+- **Use case**: Standardizes text for case-insensitive comparisons or formatting.
+
+
+## 2. TRIM
+
+- **Purpose**: Removes leading and trailing spaces from a string.
+
+  TRIM(string_expression)
+- **Example**:
+  SELECT TRIM('   SQL Server   ') AS TrimmedString;
+  -- Returns: 'SQL Server'
+
+- **Note**: Removes spaces from both ends. For only leading or trailing spaces, use `LTRIM` or `RTRIM`.
+
+***
+
+## 3. REVERSE
+- **Purpose**: Reverses the sequence of characters in a string.
+ 
+  REVERSE(string_expression)
+  
+  SELECT REVERSE('SQL Server') AS ReversedString;
+  -- Returns: 'revreS LQS'
+  
+- **Use case**: Useful for specialized string palindrome checks.
+
+
+## 4. REPLICATE
+REPLICATE(string_expression, integer_expression)
+
+SELECT REPLICATE('SQL ', 3) AS RepeatedString;
+Result:
+SQL SQL SQL 
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
